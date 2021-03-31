@@ -1,4 +1,4 @@
-# Tidelift and Jenkins Pipelines Integration
+# Tidelift and Jenkins Pipeline Integration
 
 Tidelift can integrate with Jenkins through [Jenkins Pipeline](https://www.jenkins.io/doc/book/pipeline/).
 
