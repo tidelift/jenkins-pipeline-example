@@ -1,0 +1,36 @@
+// Jenkinsfile example for checking dependencies from version control against a
+// Tidelift Catalog
+// Set build environment variable for the Tidelift API Key
+// This example is for maven
+
+pipeline {
+    agent any
+    tools {
+        maven 'maven 3.6.3'
+    }
+    environment {
+        TIDELIFT_API_KEY = credentials('tidelift-project-api-key')
+    }
+// Checkout code from your version control system
+    stages {
+        stage('Checkout code') {
+            steps {
+                git 'https://some-git-repo.git'
+            }
+        }
+// Download the Tidelift CLI and make it executable
+        stage('Downloading Tidelift CLI') {
+            steps {
+               sh 'curl -s -o ./tidelift https://download.tidelift.com/cli/tidelift'
+               sh 'chmod +x ./tidelift'
+            }
+        }
+// Run Tidelift Catalog alignment and save output to Tidelift
+        stage('Running Tidelift Alignment') {
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                sh "./tidelift alignment save --wait"}
+              }
+           }
+        }
+    }
