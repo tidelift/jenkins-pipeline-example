@@ -26,9 +26,11 @@ pipeline {
             }
         }
 // Run Tidelift Catalog alignment and save output to Tidelift
+
         stage('Running Tidelift Alignment') {
             steps {
-                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+// optional: do not break build if failure, only log the failure  
+//                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 sh "./tidelift alignment save --wait"}
               }
            }
