@@ -4,6 +4,8 @@ Tidelift can integrate with Jenkins through [Jenkins Pipeline](https://www.jenki
 
 This example will complete a basic `tidelift alignment save`, causing Tidelift to check the project's manifest against the correct Tidelift Catalog. If alignment is below 100%, the CLI will return exit status `1`, and the build will fail.
 
+It also can optionally be set to not fail the build when not fully aligned, but simply note the failed alignment as part of the build.
+
 This is meant to be an example to build upon.
 
 # Instructions
