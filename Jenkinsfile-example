@@ -12,7 +12,7 @@ pipeline {
         TIDELIFT_API_KEY = credentials('tidelift-project-api-key')
 // Only needed for automated project creation
 //        TIDELIFT_BOT_USER_API_KEY = credentials('tidelift-bot-user-api-key')
-//        Project name does need to be injected from a known source.
+// Project name does need to be injected from a known source.
 //        TIDELIFT_PROJECT_NAME = "project"
     }
 // Checkout code from your version control system
