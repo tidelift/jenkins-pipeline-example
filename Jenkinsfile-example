@@ -10,6 +10,10 @@ pipeline {
     }
     environment {
         TIDELIFT_API_KEY = credentials('tidelift-project-api-key')
+// Only needed for automated project creation
+//        TIDELIFT_BOT_USER_API_KEY = credentials('tidelift-bot-user-api-key')
+//        Project name does need to be injected from a known source.
+//        TIDELIFT_PROJECT_NAME = "project"
     }
 // Checkout code from your version control system
     stages {
@@ -25,11 +29,24 @@ pipeline {
                sh 'chmod +x ./tidelift'
             }
         }
+
+// Create Tidelift project if it does not already exist. Here we are running the create command via CLI.
+// If the project is not known, it will be created and logged. If it is known, we catch the response and move on.
+//        stage('Creating project if does not exist'){
+//          steps {
+//            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE'){
+//                sh './tidelift projects new ${TIDELIFT_PROJECT_NAME} --force'
+//                echo 'Project ${TIDELIFT_PROJECT_NAME} does not exist in Tidelift.'
+//                echo "Created ${TIDELIFT_PROJECT_NAME} in Tidelift."
+//              }
+//            }
+//        }
+
 // Run Tidelift Catalog alignment and save output to Tidelift
 
         stage('Running Tidelift Alignment') {
             steps {
-// optional: do not break build if failure, only log the failure  
+// optional: do not break build if failure, only log the failure
 //                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
                 sh "./tidelift alignment save --wait"}
               }
