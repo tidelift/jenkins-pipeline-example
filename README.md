@@ -16,6 +16,7 @@ This is meant to be an example to build upon.
 
 * The project does not contain a `.tidelift` file and project name and organization name are both configured as envars in Jenkins. If the project contains a `.tidelift` file, the example can be edited to accommodate that.
 * This example is for a simple Maven-based project. You may need to tweak the `tools` configuration inside the Jenkinsfile based upon your project.
+* A bot or machine user exists in Tidelift if choosing to automate creation of projects at buid time.
 
 
 ## Quick start
