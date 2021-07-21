@@ -6,50 +6,67 @@
 pipeline {
     agent any
     tools {
-        maven 'maven 3.6.3'
+        maven 'Maven 3.8.1'
     }
     environment {
-        TIDELIFT_API_KEY = credentials('tidelift-project-api-key')
+// Always store API keys in Jenkins credential store
+// ORG key should be either an Organization API key or Project API key
+        TIDELIFT_ORG_API_KEY = credentials('tidlift-org-api-key')
 // Only needed for automated project creation
-//        TIDELIFT_BOT_USER_API_KEY = credentials('tidelift-bot-user-api-key')
-// Project name does need to be injected from a known source.
-//        TIDELIFT_PROJECT_NAME = "project"
+        TIDELIFT_BOT_USER_API_KEY = credentials('tidlift-bot-user-api-key')
+// These are needed to run alignments and also to create the project. Ideally these are read from
+// configuration in Jenkins or from local metadata stored in the repository being checked out.
+        TIDELIFT_PROJECT_NAME = 'project-name'
+        TIDELIFT_ORGANIZATION = 'team/<tidelift-org>'
+        TIDELIFT_CATALOG = 'catalog-name'
     }
 // Checkout code from your version control system
     stages {
         stage('Checkout code') {
             steps {
-                git 'https://some-git-repo.git'
+                git '<url-to-checkout>'
             }
         }
+
 // Download the Tidelift CLI and make it executable
         stage('Downloading Tidelift CLI') {
             steps {
-               sh 'curl -s -o ./tidelift https://download.tidelift.com/cli/tidelift'
-               sh 'chmod +x ./tidelift'
+                  sh 'curl -s -o ./tidelift https://download.tidelift.com/cli/tidelift'
+                  sh 'chmod +x ./tidelift'
             }
         }
 
-// Create Tidelift project if it does not already exist. Here we are running the create command via CLI.
+// OPTIONAL: Create Tidelift project if it does not already exist. Here we are running the create command via CLI.
 // If the project is not known, it will be created and logged. If it is known, we catch the response and move on.
-//        stage('Creating project if does not exist'){
-//          steps {
-//            catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE'){
-//                sh './tidelift projects new ${TIDELIFT_PROJECT_NAME} --force'
-//                echo 'Project ${TIDELIFT_PROJECT_NAME} does not exist in Tidelift.'
-//                echo "Created ${TIDELIFT_PROJECT_NAME} in Tidelift."
+//          stage('Creating project if does not exist'){
+//            steps {
+// Need to use a bot user API key in order to create the project as project and organization keys do not allow project
+// creation.
+//                withEnv(['TIDELIFT_API_KEY=${TIDELIFT_BOT_USER_API_KEY}']){
+// The command to create a new project will create an error if the project exists. Catch and move on to alignment if
+// project exists.
+//                  catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE'){
+//                      sh './tidelift projects new ${TIDELIFT_PROJECT_NAME} --force --organization ${TIDELIFT_ORGANIZATION} --catalog ${TIDELIFT_CATALOG}'
+//                      echo 'Project does not exist in Tidelift.'
+//                      echo "Created project in Tidelift."
+//                  }
+//                }
 //              }
 //            }
-//        }
 
 // Run Tidelift Catalog alignment and save output to Tidelift
+// Ensure Organization or project API key is being used to run the alignment
+// Optional step catches any mis-alignments reported back as to not break builds, but will log the mis-alignment.
 
         stage('Running Tidelift Alignment') {
             steps {
-// optional: do not break build if failure, only log the failure
-//                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                sh "./tidelift alignment save --wait"}
+              withEnv(['TIDELIFT_API_KEY=${TIDELIFT_ORG_API_KEY}']){
+                catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                      sh "./tidelift alignment save --wait --project ${TIDELIFT_PROJECT_NAME} --organization ${TIDELIFT_ORGANIZATION} --catalog ${TIDELIFT_CATALOG}"
+
+                 }
               }
-           }
+            }
         }
     }
+}
