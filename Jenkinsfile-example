@@ -55,14 +55,14 @@ pipeline {
 //            }
 
 // Run Tidelift Catalog alignment and save output to Tidelift
-// Ensure Organization or project API key is being used to run the alignment
+// Ensure Organization or Project API key is being used to run the alignment
 // Optional step catches any mis-alignments reported back as to not break builds, but will log the mis-alignment.
 
         stage('Running Tidelift Alignment') {
             steps {
               withEnv(['TIDELIFT_API_KEY=${TIDELIFT_ORG_API_KEY}']){
                 catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                      sh "./tidelift alignment save --wait --project ${TIDELIFT_PROJECT_NAME} --organization ${TIDELIFT_ORGANIZATION} --catalog ${TIDELIFT_CATALOG}"
+                      sh "./tidelift alignment save --wait --project ${TIDELIFT_PROJECT_NAME} --organization ${TIDELIFT_ORGANIZATION}"
 
                  }
               }
